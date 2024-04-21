@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내일 배움 캠프를 시작하며</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script type="module">
+        // Firebase SDK 라이브러리 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+        import { getDocs } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyCE8d0FzfmcSAYIrA0vvTFCxryBr0KMsDg",
+            authDomain: "sparta-c9e26.firebaseapp.com",
+            projectId: "sparta-c9e26",
+            storageBucket: "sparta-c9e26.appspot.com",
+            messagingSenderId: "958934677878",
+            appId: "1:958934677878:web:3e1d04d1e6188a4038a257",
+            measurementId: "G-2QTYYVHR0G"
+        };
+
+
+        // Firebase 인스턴스 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        $("#postingbtn").click(async function () {
+            let image = $('#image').val();
+            let title = $('#title').val();
+            let content = $('#content').val();
+            let date = $('#date').val();
+            let doc = {
+                'image': image,
+                'title': title,
+                'content': content,
+                'date': date
+            };
+            await addDoc(collection(db, "sparta"), doc);
+            alert('저장 완료!')
+            window.location.reload();
+        })
+        $("#savebtn").click(async function () {
+            $('#postingbox').toggle();
+        })
+
+        let url = "http://spartacodingclub.shop/sparta_api/seoulair";
+        fetch(url).then(res => res.json()).then(data => {
+            let mise = data['RealtimeCityAir']['row'][0]['IDEX_NM'];
+            console.log(mise);
+            $('#msg').text(mise)
+        })
+
+        let docs = await getDocs(collection(db, "sparta"));
+        docs.forEach((doc) => {
+            let row = doc.data();
+            
+            let image = row['image']
+            let title = row['title']
+            let content =row['content']
+            let date = row['date']
+
+            let temp_html = `
+            <div class="col">
+                <div class="card h-100">
+                    <img src="${image}"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">${title}</h5>
+                        <p class="card-text">${content}</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">${date}</small>
+                    </div>
+                </div>
+            </div>`
+            $('#card').append(temp_html)
+        });
+        
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&display=swap');
+
+        * {
+
+            font-family: "Nanum Brush Script", cursive;
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        .mytitle {
+            height: 250px;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-image: url('image.png');
+            background-position: center;
+            background-size: cover;
+        }
+
+        .mytitle>button {
+            width: 150px;
+            height: 50px;
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .mycards {
+            width: 1200px;
+            margin: 30px auto 30px auto;
+        }
+
+        .mypostingbox {
+            width: 500px;
+            margin: 20px auto 0px auto;
+            padding: 20px;
+            box-shadow: 0px 0px 3px 0px blue;
+            border-radius: 5px;
+        }
+
+        .mybtn {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mybtn>button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="mytitle">
+        <h1>내일배움캠프를 시작하며</h1>
+        <p>현재 서울의 미세먼지 : <span id="msg">나빠</span></p>
+        <button id="savebtn">공부 시작하기</button>
+    </div>
+    <div class="mypostingbox" id="postingbox">
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="image" placeholder="앨범 이미지">
+            <label for="floatingInput">오늘 날씨 사진</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="title" placeholder="앨범 제목">
+            <label for="floatingInput">날짜</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="content" placeholder="앨범 내용">
+            <label for="floatingInput">오늘 공부 내용</label>
+        </div>
+        <div class="form-floating mb-3">
+            <input type="email" class="form-control" id="date" placeholder="앨범 날짜">
+            <label for="floatingInput">오늘 공부 시간</label>
+        </div>
+        <div class="mybtn">
+            <button id="postingbtn" class="btn btn-primary">기록하기</button>
+            <button type="button" class="btn btn-outline-primary">닫기</button>
+        </div>
+    </div>
+    <div class="mycards">
+        <div id="card" class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="col">
+                <div class="card h-100">
+                    <img src="data:image/jpeg;base64,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"
+                        class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">2024.04.20</h5>
+                        <p class="card-text">HTML</p>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-body-secondary">13H 20M</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
